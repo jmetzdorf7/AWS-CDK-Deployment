@@ -33,8 +33,14 @@ export class TransitGatewayConstruct extends Construct {
     value: 'dev',
     },
     ],
+
+    // Outputs
+    new cdk.CfnOutput(this, 'TransitGatewayId', {
+    value: this.transitGateway.ref,
+    });
   }
 }
+
 
 
 
