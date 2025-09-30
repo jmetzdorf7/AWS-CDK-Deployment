@@ -15,4 +15,13 @@ export class TgwAttachmentConstruct extends Construct {
       vpcId: props.vpc.vpcId,
       subnetIds: props.vpc.privateSubnets.map(subnet => subnet.subnetId),
     });
+
+    // Tagging
+    tags: [
+    {
+    key: 'Name',
+    value: `TgwAttachment-${id}`,
+    },
+],
   }
+
