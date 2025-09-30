@@ -19,4 +19,13 @@ new MainStack(app, `MainStack-${envName}`, {
   env: awsEnv,
   stackName: `MainStack-${envName}`,
   description: `Main infrastructure stack for ${envName} environment`,
+
+  export interface MainStackProps extends cdk.StackProps {
+  envName: string;
+  stackName: string;
+  description?: string;
+}
 });
+
+
+
