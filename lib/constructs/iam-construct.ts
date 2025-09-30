@@ -1,38 +1,40 @@
 import { Construct } from 'constructs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as cdk from 'aws-cdk-lib';
 
 export interface IamConstructProps {
   envName: string;
 }
 
 export class IamConstruct extends Construct {
-  public readonly user: iam.User;
   public readonly role: iam.Role;
+  public readonly user: iam.User;
 
   constructor(scope: Construct, id: string, props: IamConstructProps) {
     super(scope, id);
 
-    const group = new iam.Group(this, `Group-${props.envName}`, {
-      groupName: `Developers-${props.envName}`,
+    // IAM Role
+    this.role = new iam.Role(this, `IamRole-${props.envName}`, {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      description: `Lambda execution role for ${props.envName}`,
     });
 
-    group.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ReadOnlyAccess')
-    );
-
-    this.user = new iam.User(this, `User-${props.envName}`, {
-      userName: `developer-${props.envName}`,
+    // IAM User
+    this.user = new iam.User(this, `IamUser-${props.envName}`, {
+      userName: `user-${props.envName}`,
     });
 
-    group.addUser(this.user);
+    // Tagging
+    cdk.Tags.of(this.role).add('Environment', props.envName);
+    cdk.Tags.of(this.user).add('Environment', props.envName);
 
-    this.role = new iam.Role(this, `Role-${props.envName}`, {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-      roleName: `EC2AccessRole-${props.envName}`,
+    // Outputs
+    new cdk.CfnOutput(this, 'IamRoleName', {
+      value: this.role.roleName,
     });
 
-    this.role.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess')
-    );
+    new cdk.CfnOutput(this, 'IamUserName', {
+      value: this.user.userName,
+    });
   }
 }
