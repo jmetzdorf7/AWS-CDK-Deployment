@@ -4,6 +4,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 export interface TgwAttachmentConstructProps {
   vpc: ec2.Vpc;
   transitGatewayId: string;
+  envName: string;
 }
 
 export class TgwAttachmentConstruct extends Construct {
@@ -24,4 +25,5 @@ export class TgwAttachmentConstruct extends Construct {
     },
 ],
   }
+
 
