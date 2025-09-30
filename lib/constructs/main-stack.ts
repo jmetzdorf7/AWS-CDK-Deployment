@@ -58,10 +58,14 @@ export class MainStack extends cdk.Stack {
       vpc: vpcConstruct.vpc,
     });
 
+    // Logging
+    cdk.Tags.of(this).add('LogGroup', logging.logGroup.logGroupName);
+
     // Tags
     cdk.Tags.of(this).add('Environment', props.envName);
     cdk.Tags.of(this).add('LogGroup', logging.logGroup.logGroupName);
   }
 
 }
+
 
