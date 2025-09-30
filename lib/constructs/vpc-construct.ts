@@ -26,10 +26,14 @@ export class VpcConstruct extends Construct {
         // Validation
         if (!props.envName) {
         throw new Error('envName is required for VpcConstruct');
+        // Outputs
+        new cdk.CfnOutput(this, 'VpcId', {
+        value: this.vpc.vpcId);  
         }
       ],
     });
   }
 }
+
 
 
