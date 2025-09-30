@@ -15,6 +15,8 @@ export class TgwAttachmentConstruct extends Construct {
       transitGatewayId: props.transitGatewayId,
       vpcId: props.vpc.vpcId,
       subnetIds: props.vpc.privateSubnets.map(subnet => subnet.subnetId),
+      public readonly attachment: ec2.CfnTransitGatewayAttachment;
+      this.attachment = new ec2.CfnTransitGatewayAttachment(...); 
     });
 
     // Tagging
@@ -23,7 +25,13 @@ export class TgwAttachmentConstruct extends Construct {
     key: 'Name',
     value: `TgwAttachment-${id}`,
     },
+    
+    // Outputs
+    new cdk.CfnOutput(this, 'TgwAttachmentId', {
+    value: this.attachment.ref,
+    });  
 ],
   }
+
 
 
