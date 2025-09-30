@@ -1,6 +1,7 @@
 import { Construct } from 'constructs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export interface ApiGatewayConstructProps {
   envName: string;
@@ -38,5 +39,16 @@ export class ApiGatewayConstruct extends Construct {
     const helloResource = this.api.root.addResource('hello');
     helloResource.addMethod('GET', new apigateway.LambdaIntegration(helloLambda));
   }
+  
+// After defining helloLambda
+helloLambda.addToRolePolicy(new iam.PolicyStatement({
+  actions: [
+    's3:ListBucket',
+    's3:GetObject',
+  ],
+  resources: ['*'], // Replace with specific ARNs for tighter security
+}));
+
 
 }
+
