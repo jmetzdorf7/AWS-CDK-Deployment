@@ -21,6 +21,10 @@ export class VpcConstruct extends Construct {
           name: `${props.envName}-Private`,
           subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
+        {
+          name: `${props.envName}-Isolated`,
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        }
         // Tagging
         cdk.Tags.of(this.vpc).add('Environment', props.envName);
         // Validation
@@ -34,6 +38,7 @@ export class VpcConstruct extends Construct {
     });
   }
 }
+
 
 
 
