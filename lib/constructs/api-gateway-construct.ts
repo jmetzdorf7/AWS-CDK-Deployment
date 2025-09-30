@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import * as apigateway from 'lib/constructs/api-gateway-construct.ts';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 
 export interface ApiGatewayConstructProps {
@@ -38,4 +38,5 @@ export class ApiGatewayConstruct extends Construct {
     const helloResource = this.api.root.addResource('hello');
     helloResource.addMethod('GET', new apigateway.LambdaIntegration(helloLambda));
   }
+
 }
