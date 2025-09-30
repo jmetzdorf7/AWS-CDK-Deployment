@@ -61,6 +61,12 @@ export class MainStack extends cdk.Stack {
       envName: props.envName,
       vpc: vpcConstruct.vpc,
     });
+    
+    // Outputs
+    new cdk.CfnOutput(this, 'VpcId', {
+      value: vpcConstruct.vpc.vpcId,
+      exportName: `${props.envName}-VpcId`,
+    });
 
     // Logging
     cdk.Tags.of(this).add('LogGroup', logging.logGroup.logGroupName);
@@ -71,6 +77,7 @@ export class MainStack extends cdk.Stack {
   }
 
 }
+
 
 
 
