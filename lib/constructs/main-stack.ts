@@ -21,7 +21,12 @@ export class MainStack extends cdk.Stack {
   description: props.description,
 });
 
-
+    // Validate Environment
+    const allowedEnvs = ['dev', 'staging', 'prod'];
+    if (!allowedEnvs.includes(props.envName)) {
+    throw new Error(`Invalid environment name: ${props.envName}`);
+    }
+    
     // Logging
     const logging = new LoggingConstruct(this, 'LoggingConstruct', {
       envName: props.envName,
@@ -77,6 +82,7 @@ export class MainStack extends cdk.Stack {
   }
 
 }
+
 
 
 
