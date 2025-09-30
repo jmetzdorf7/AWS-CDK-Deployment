@@ -14,6 +14,12 @@ export class TransitGatewayConstruct extends Construct {
       defaultRouteTableAssociation: 'enable',
       defaultRouteTablePropagation: 'enable',
     });
+
+    // Environment naming
+    export interface TransitGatewayConstructProps {
+    envName: string;
+    }
+    
     // Tagging
     tags: [
     {
@@ -27,5 +33,6 @@ export class TransitGatewayConstruct extends Construct {
     ],
   }
 }
+
 
 
