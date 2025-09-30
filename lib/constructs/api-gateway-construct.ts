@@ -26,6 +26,11 @@ export class ApiGatewayConstruct extends Construct {
       `),
     });
 
+      helloLambda.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['s3:ListBucket', 's3:GetObject'],
+      resources: ['*'], 
+    }));
+
     this.api = new apigateway.RestApi(this, `ApiGateway-${props.envName}`, {
       restApiName: `ServiceApi-${props.envName}`,
       description: `API Gateway for ${props.envName} environment`,
@@ -39,22 +44,4 @@ export class ApiGatewayConstruct extends Construct {
     const helloResource = this.api.root.addResource('hello');
     helloResource.addMethod('GET', new apigateway.LambdaIntegration(helloLambda));
   }
-  
-new cdk.CfnOutput(this, 'ApiUrl', {
-  value: this.api.url,
-});
-
-  
-// After defining helloLambda
-helloLambda.addToRolePolicy(new iam.PolicyStatement({
-  actions: [
-    's3:ListBucket',
-    's3:GetObject',
-  ],
-  resources: ['*'], // Replace with specific ARNs for tighter security
-}));
-
-
 }
-
-
