@@ -40,6 +40,11 @@ export class ApiGatewayConstruct extends Construct {
     helloResource.addMethod('GET', new apigateway.LambdaIntegration(helloLambda));
   }
   
+new cdk.CfnOutput(this, 'ApiUrl', {
+  value: this.api.url,
+});
+
+  
 // After defining helloLambda
 helloLambda.addToRolePolicy(new iam.PolicyStatement({
   actions: [
@@ -51,4 +56,5 @@ helloLambda.addToRolePolicy(new iam.PolicyStatement({
 
 
 }
+
 
