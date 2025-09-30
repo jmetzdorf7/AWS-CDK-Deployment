@@ -4,16 +4,18 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 export class TransitGatewayConstruct extends Construct {
   public readonly transitGateway: ec2.CfnTransitGateway;
 
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
+  constructor(scope: Construct, id: string, props: TransitGatewayConstructProps) {
+  super(scope, id);
 
-    this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
-      description: 'Transit Gateway for VPC connectivity',
-      amazonSideAsn: 64512,
+  this.transitGateway = new ec2.CfnTransitGateway(this, `TransitGateway-${props.envName}`, {
+    description: `Transit Gateway for ${props.envName} environment`,
+    ...
+  amazonSideAsn: 64512,
       autoAcceptSharedAttachments: 'enable',
       defaultRouteTableAssociation: 'enable',
       defaultRouteTablePropagation: 'enable',
     });
+    }
 
     // Environment naming
     export interface TransitGatewayConstructProps {
@@ -33,6 +35,7 @@ export class TransitGatewayConstruct extends Construct {
     ],
   }
 }
+
 
 
 
