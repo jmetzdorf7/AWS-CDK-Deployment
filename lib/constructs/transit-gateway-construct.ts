@@ -14,6 +14,18 @@ export class TransitGatewayConstruct extends Construct {
       defaultRouteTableAssociation: 'enable',
       defaultRouteTablePropagation: 'enable',
     });
+    // Tagging
+    tags: [
+    {
+    key: 'Name',
+    value: 'TransitGateway',
+    },
+    {
+    key: 'Environment',
+    value: 'dev',
+    },
+    ],
   }
 }
+
 
