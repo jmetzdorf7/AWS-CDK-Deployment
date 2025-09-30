@@ -16,7 +16,11 @@ export interface MainStackProps extends cdk.StackProps {
 
 export class MainStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: MainStackProps) {
-    super(scope, id, props);
+   super(scope, id, {
+  ...props,
+  description: props.description,
+});
+
 
     // Logging
     const logging = new LoggingConstruct(this, 'LoggingConstruct', {
@@ -67,5 +71,6 @@ export class MainStack extends cdk.Stack {
   }
 
 }
+
 
 
