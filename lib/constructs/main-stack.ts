@@ -12,6 +12,8 @@ import { Ec2Construct } from './constructs/ec2-construct';
 
 export interface MainStackProps extends cdk.StackProps {
   envName: string;
+  stackName: string;
+  description?: string;
 }
 
 export class MainStack extends cdk.Stack {
@@ -62,4 +64,5 @@ export class MainStack extends cdk.Stack {
     cdk.Tags.of(this).add('Environment', props.envName);
     cdk.Tags.of(this).add('LogGroup', logging.logGroup.logGroupName);
   }
+
 }
