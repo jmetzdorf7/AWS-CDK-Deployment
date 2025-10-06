@@ -7,9 +7,10 @@ export interface Ec2ConstructProps {
   vpc: ec2.Vpc;
 }
 
-export class Ec2Construct extends Construct {
-  public readonly instance: ec2.Instance;
-  public readonly securityGroup: ec2.SecurityGroup;
+export class Ec2Construct extends Construct {  
+public readonly securityGroup: ec2.SecurityGroup;
+this.securityGroup = securityGroup;
+
 
   constructor(scope: Construct, id: string, props: Ec2ConstructProps) {
     super(scope, id);
@@ -36,10 +37,17 @@ export class Ec2Construct extends Construct {
       securityGroup: this.securityGroup,
     });
 
-    // Add tags
+    // Tagging
     cdk.Tags.of(this.instance).add('Environment', props.envName);
     cdk.Tags.of(this.securityGroup).add('Environment', props.envName);
     cdk.Tags.of(this.instance).add('Name', `EC2Instance-${props.envName}`);
     cdk.Tags.of(this.securityGroup).add('Name', `EC2SG-${props.envName}`);
+
+    // Outputs
+    new cdk.CfnOutput(this, 'InstanceId', {
+    value: this.instance.instanceId,
+    });
+
   }
 }
+
