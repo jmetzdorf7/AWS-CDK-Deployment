@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import * as apigateway from 'lib/constructs/api-gateway-construct.ts';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
@@ -27,9 +27,13 @@ export class ApiGatewayConstruct extends Construct {
     });
 
       helloLambda.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['s3:ListBucket', 's3:GetObject'],
-      resources: ['*'], 
-    }));
+      actions: [
+      's3:ListBucket',
+      's3:GetObject',
+      ],
+      resources: ['arn:aws:s3:::my-bucket-name', 'arn:aws:s3:::my-bucket-name/*'], 
+      }));
+
 
     this.api = new apigateway.RestApi(this, `ApiGateway-${props.envName}`, {
       restApiName: `ServiceApi-${props.envName}`,
@@ -48,6 +52,11 @@ export class ApiGatewayConstruct extends Construct {
     new cdk.CfnOutput(this, 'ApiUrl', {
     value: this.api.url,
     });
+
+    // Tagging
+    cdk.Tags.of(this.api).add('Environment', props.envName);
+    cdk.Tags.of(helloLambda).add('Environment', props.envName);
   }
 }
+
 
