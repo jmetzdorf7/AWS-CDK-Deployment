@@ -1,5 +1,6 @@
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as cdk from 'aws-cdk-lib';
 
 export interface TgwAttachmentConstructProps {
   vpc: ec2.Vpc;
@@ -8,30 +9,31 @@ export interface TgwAttachmentConstructProps {
 }
 
 export class TgwAttachmentConstruct extends Construct {
+  public readonly attachment: ec2.CfnTransitGatewayAttachment;
+
   constructor(scope: Construct, id: string, props: TgwAttachmentConstructProps) {
     super(scope, id);
 
-    new ec2.CfnTransitGatewayAttachment(this, 'TgwAttachment', {
+    this.attachment = new ec2.CfnTransitGatewayAttachment(this, 'TgwAttachment', {
       transitGatewayId: props.transitGatewayId,
       vpcId: props.vpc.vpcId,
       subnetIds: props.vpc.privateSubnets.map(subnet => subnet.subnetId),
-      public readonly attachment: ec2.CfnTransitGatewayAttachment;
-      this.attachment = new ec2.CfnTransitGatewayAttachment(...); 
+      tags: [
+        {
+          key: 'Name',
+          value: `TgwAttachment-${id}`,
+        },
+        {
+          key: 'Env',
+          value: props.envName,
+        },
+      ],
     });
 
-    // Tagging
-    tags: [
-    {
-    key: 'Name',
-    value: `TgwAttachment-${id}`,
-    },
-    
-    // Outputs
     new cdk.CfnOutput(this, 'TgwAttachmentId', {
-    value: this.attachment.ref,
-    });  
-],
+      value: this.attachment.ref,
+      description: 'The ID of the Transit Gateway Attachment',
+      exportName: `TgwAttachmentId-${id}`,
+    });
   }
-
-
-
+}
