@@ -1,40 +1,41 @@
 import { Construct } from 'constructs';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as cdk from 'aws-cdk-lib';
+import { 
+  aws_logs as logs, 
+  Tags, 
+  CfnOutput, 
+  RemovalPolicy 
+} from 'aws-cdk-lib';
 
-export interface IamConstructProps {
+export interface LoggingConstructProps {
   envName: string;
+  retentionDays?: logs.RetentionDays;
 }
 
-export class IamConstruct extends Construct {
-  public readonly role: iam.Role;
-  public readonly user: iam.User;
+export class LoggingConstruct extends Construct {
+  public readonly logGroup: logs.LogGroup;
 
-  constructor(scope: Construct, id: string, props: IamConstructProps) {
+  constructor(scope: Construct, id: string, props: LoggingConstructProps) {
     super(scope, id);
 
-    // IAM Role
-    this.role = new iam.Role(this, `IamRole-${props.envName}`, {
-      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
-      description: `Lambda execution role for ${props.envName}`,
-    });
+    // Validation
+    if (!props.envName) {
+      throw new Error('envName is required for LoggingConstruct');
+    }
 
-    // IAM User
-    this.user = new iam.User(this, `IamUser-${props.envName}`, {
-      userName: `user-${props.envName}`,
+    this.logGroup = new logs.LogGroup(this, `LogGroup-${props.envName}`, {
+      logGroupName: `/cdk/${props.envName}/network`,
+      retention: props.retentionDays ?? logs.RetentionDays.ONE_WEEK,
+      removalPolicy: props.envName === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
     });
 
     // Tagging
-    cdk.Tags.of(this.role).add('Environment', props.envName);
-    cdk.Tags.of(this.user).add('Environment', props.envName);
+    Tags.of(this.logGroup).add('Environment', props.envName);
+    Tags.of(this.logGroup).add('Name', `LogGroup-${props.envName}`);
 
     // Outputs
-    new cdk.CfnOutput(this, 'IamRoleName', {
-      value: this.role.roleName,
-    });
-
-    new cdk.CfnOutput(this, 'IamUserName', {
-      value: this.user.userName,
+    new CfnOutput(this, `LogGroupNameOutput-${props.envName}`, {
+      value: this.logGroup.logGroupName,
+      description: `The log group name for environment ${props.envName}`,
     });
   }
 }
