@@ -1,31 +1,32 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { MainStack } from '../lib/main-stack';
+import { MainStack, MainStackProps } from '../lib/main-stack';
 
 const app = new cdk.App();
 
 // Get environment name from context or default to 'dev'
-const envName = app.node.tryGetContext('env') || 'dev';
+const envName: string = app.node.tryGetContext('env') || 'dev';
 
-// Define AWS environment
+// Validate AWS environment variables
+const account = process.env.CDK_DEFAULT_ACCOUNT;
+const region = process.env.CDK_DEFAULT_REGION;
+
+if (!account || !region) {
+  throw new Error('CDK_DEFAULT_ACCOUNT and CDK_DEFAULT_REGION must be set.');
+}
+
 const awsEnv = {
-  account: process.env.CDK_DEFAULT_ACCOUNT,
-  region: process.env.CDK_DEFAULT_REGION,
+  account,
+  region,
 };
 
-// Deploy main stack
-new MainStack(app, `MainStack-${envName}`, {
+// Define stack props
+const stackProps: MainStackProps = {
   envName,
   env: awsEnv,
   stackName: `MainStack-${envName}`,
   description: `Main infrastructure stack for ${envName} environment`,
+};
 
-  export interface MainStackProps extends cdk.StackProps {
-  envName: string;
-  stackName: string;
-  description?: string;
-}
-});
-
-
-
+// Deploy main stack
+new MainStack(app, stackProps.stackName, stackProps);
