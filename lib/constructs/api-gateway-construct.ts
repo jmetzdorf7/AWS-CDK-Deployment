@@ -2,9 +2,11 @@ import { Construct } from 'constructs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as cdk from 'aws-cdk-lib';
 
 export interface ApiGatewayConstructProps {
   envName: string;
+  s3BucketName: string;
 }
 
 export class ApiGatewayConstruct extends Construct {
@@ -16,24 +18,22 @@ export class ApiGatewayConstruct extends Construct {
     const helloLambda = new lambda.Function(this, `HelloLambda-${props.envName}`, {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'index.handler',
-      code: lambda.Code.fromInline(`
-        exports.handler = async function(event) {
-          return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "Hello from ${props.envName}!" })
-          };
-        };
-      `),
+      code: lambda.Code.fromAsset('lambda/hello'),
+      environment: {
+        ENV_NAME: props.envName,
+      },
     });
 
-      helloLambda.addToRolePolicy(new iam.PolicyStatement({
+    helloLambda.addToRolePolicy(new iam.PolicyStatement({
       actions: [
-      's3:ListBucket',
-      's3:GetObject',
+        's3:ListBucket',
+        's3:GetObject',
       ],
-      resources: ['arn:aws:s3:::my-bucket-name', 'arn:aws:s3:::my-bucket-name/*'], 
-      }));
-
+      resources: [
+        `arn:aws:s3:::${props.s3BucketName}`,
+        `arn:aws:s3:::${props.s3BucketName}/*`
+      ],
+    }));
 
     this.api = new apigateway.RestApi(this, `ApiGateway-${props.envName}`, {
       restApiName: `ServiceApi-${props.envName}`,
@@ -42,6 +42,7 @@ export class ApiGatewayConstruct extends Construct {
         stageName: props.envName,
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         dataTraceEnabled: true,
+        // Optionally add accessLogDestination/accessLogFormat for advanced logging
       },
     });
 
@@ -49,8 +50,8 @@ export class ApiGatewayConstruct extends Construct {
     helloResource.addMethod('GET', new apigateway.LambdaIntegration(helloLambda));
 
     // Outputs
-    new cdk.CfnOutput(this, 'ApiUrl', {
-    value: this.api.url,
+    new cdk.CfnOutput(this, `ApiUrl-${props.envName}`, {
+      value: this.api.url,
     });
 
     // Tagging
@@ -58,5 +59,3 @@ export class ApiGatewayConstruct extends Construct {
     cdk.Tags.of(helloLambda).add('Environment', props.envName);
   }
 }
-
-
