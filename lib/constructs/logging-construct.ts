@@ -17,18 +17,5 @@ export class LoggingConstruct extends Construct {
       retention: props.retentionDays ?? logs.RetentionDays.ONE_WEEK,
       removalPolicy: props.envName === 'prod' ? undefined : logs.RemovalPolicy.DESTROY,
     });
-
-  // Tagging
-  cdk.Tags.of(this.logGroup).add('Environment', props.envName);
-  cdk.Tags.of(this.logGroup).add('Name', `LogGroup-${props.envName}`);
-
-  // Validation
-  if (!props.envName) {
-  throw new Error('envName is required for LoggingConstruct'});
-
-  // Outputs
-  new cdk.CfnOutput(this, 'LogGroupName', {
-  value: this.logGroup.logGroupName,});   
   }
-
 }
