@@ -12,21 +12,24 @@ import { Ec2Construct } from './constructs/ec2-construct';
 
 export interface MainStackProps extends cdk.StackProps {
   envName: string;
+  description?: string; // Added to support stack description
 }
 
 export class MainStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: MainStackProps) {
-   super(scope, id, {
-  ...props,
-  description: props.description,
-});
+    super(scope, id, {
+      ...props,
+      description: props.description,
+    });
 
     // Validate Environment
     const allowedEnvs = ['dev', 'staging', 'prod'];
     if (!allowedEnvs.includes(props.envName)) {
-    throw new Error(`Invalid environment name: ${props.envName}`);
+      throw new Error(
+        `Invalid environment name: ${props.envName}. Allowed values: ${allowedEnvs.join(', ')}`
+      );
     }
-    
+
     // Logging
     const logging = new LoggingConstruct(this, 'LoggingConstruct', {
       envName: props.envName,
@@ -47,43 +50,48 @@ export class MainStack extends cdk.Stack {
     });
 
     // API Gateway
-    new ApiGatewayConstruct(this, 'ApiGatewayConstruct', {
+    const apiGateway = new ApiGatewayConstruct(this, 'ApiGatewayConstruct', {
       envName: props.envName,
     });
 
     // IAM
-    new IamConstruct(this, 'IamConstruct', {
+    const iam = new IamConstruct(this, 'IamConstruct', {
       envName: props.envName,
     });
 
     // S3
-    new S3Construct(this, 'S3Construct', {
+    const s3 = new S3Construct(this, 'S3Construct', {
       envName: props.envName,
     });
 
     // EC2
-    new Ec2Construct(this, 'Ec2Construct', {
+    const ec2 = new Ec2Construct(this, 'Ec2Construct', {
       envName: props.envName,
       vpc: vpcConstruct.vpc,
     });
-    
+
     // Outputs
     new cdk.CfnOutput(this, 'VpcId', {
       value: vpcConstruct.vpc.vpcId,
       exportName: `${props.envName}-VpcId`,
     });
 
-    // Logging
-    cdk.Tags.of(this).add('LogGroup', logging.logGroup.logGroupName);
+    // Example: Export S3 bucket name and API Gateway endpoint as outputs (if available)
+    if (s3.bucket) {
+      new cdk.CfnOutput(this, 'S3BucketName', {
+        value: s3.bucket.bucketName,
+        exportName: `${props.envName}-S3BucketName`,
+      });
+    }
+    if (apiGateway.api && apiGateway.api.url) {
+      new cdk.CfnOutput(this, 'ApiGatewayUrl', {
+        value: apiGateway.api.url,
+        exportName: `${props.envName}-ApiGatewayUrl`,
+      });
+    }
 
     // Tags
     cdk.Tags.of(this).add('Environment', props.envName);
     cdk.Tags.of(this).add('LogGroup', logging.logGroup.logGroupName);
   }
-
 }
-
-
-
-
-
